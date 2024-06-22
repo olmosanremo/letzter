@@ -4,6 +4,7 @@ import DrawingCanvas from './components/DrawingCanvas';
 import ColorButton from './components/ColorButton';
 import ModeDropdown from './components/ModeDropdown';
 import axios from 'axios';
+import TrackList from './components/TrackList';
 
 function App() {
     const [mode, setMode] = useState('write');
@@ -40,7 +41,7 @@ function App() {
                 ))}
             </div>
             <ModeDropdown selectedMode={selectedMode} onSelectMode={handleModeSelect} />
-            <DrawingCanvas mode={mode} color={color} onSave={saveDrawing} />
+            <TrackList />
         </div>
     );
 }

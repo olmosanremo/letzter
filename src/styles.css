@@ -1,0 +1,19 @@
+.controls {
+    margin-bottom: 20px;
+}
+
+.controls button {
+    margin-right: 10px;
+}
+
+.track-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.track-card {
+    margin: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

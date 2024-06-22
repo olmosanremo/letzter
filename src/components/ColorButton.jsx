@@ -4,10 +4,8 @@ const ColorButton = ({ color, onSelectColor }) => {
     return (
         <button
             onClick={() => onSelectColor(color)}
-            style={{ backgroundColor: color, margin: '5px', padding: '10px' }}
-        >
-            {color}
-        </button>
+            style={{ backgroundColor: color, width: 30, height: 30, margin: 5, border: 'none', cursor: 'pointer' }}
+        />
     );
 };
 
