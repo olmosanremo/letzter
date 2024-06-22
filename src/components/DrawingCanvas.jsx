@@ -96,11 +96,17 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
         const synth = new Tone.Synth().toDestination();
         Tone.Transport.cancel(); // Clear previous events
 
+        const canvas = canvasRef.current;
+        const height = canvas.height;
+        const width = canvas.width;
+
         points.forEach((point, index) => {
-            const time = index * 0.1; // Adjust timing as needed
-            const freq = 100 + Math.abs(point.y); // Frequency increases with distance from y=0
+            const time = (point.x / width) * Tone.Transport.bpm.value / 60; // Scale x to time
+            const freq = 100 + (height - point.y); // Invert y-coordinate for frequency
+            const duration = (index < points.length - 1) ? ((points[index + 1].x - point.x) / width) * Tone.Transport.bpm.value / 60 : 0.1; // Calculate duration based on next point
+
             Tone.Transport.schedule((time) => {
-                synth.triggerAttackRelease(freq, "8n", time);
+                synth.triggerAttackRelease(freq, duration, time);
             }, time);
         });
 
