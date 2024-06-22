@@ -93,17 +93,26 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
 
     const playSound = async () => {
         await Tone.start(); // Ensuring Tone.js is started
-        const synth = new Tone.Synth().toDestination();
+        const synth = new Tone.Synth({
+            oscillator: { type: 'sine' },
+            envelope: {
+                attack: 0.1,
+                decay: 0.1,
+                sustain: 0.8,
+                release: 0.5
+            }
+        }).toDestination();
         Tone.Transport.cancel(); // Clear previous events
 
         const canvas = canvasRef.current;
         const height = canvas.height;
         const width = canvas.width;
+        const totalTime = 30; // Total time in seconds for the canvas playback
 
         points.forEach((point, index) => {
-            const time = (point.x / width) * Tone.Transport.bpm.value / 60; // Scale x to time
+            const time = (point.x / width) * totalTime; // Scale x to totalTime
             const freq = 100 + (height - point.y); // Invert y-coordinate for frequency
-            const duration = (index < points.length - 1) ? ((points[index + 1].x - point.x) / width) * Tone.Transport.bpm.value / 60 : 0.1; // Calculate duration based on next point
+            const duration = (index < points.length - 1) ? ((points[index + 1].x - point.x) / width) * totalTime : 0.5; // Calculate duration based on next point
 
             Tone.Transport.schedule((time) => {
                 synth.triggerAttackRelease(freq, duration, time);
