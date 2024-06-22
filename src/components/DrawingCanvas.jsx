@@ -8,6 +8,7 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
     const [currentLine, setCurrentLine] = useState([]);
     const [currentColor, setCurrentColor] = useState(color);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -98,8 +99,19 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
         onSave(lines.flat());
     };
 
-    const playSound = async () => {
+    const playPauseSound = async () => {
         await Tone.start(); // Ensuring Tone.js is started
+
+        if (isPlaying) {
+            if (isPaused) {
+                Tone.Transport.start();
+                setIsPaused(false);
+            } else {
+                Tone.Transport.pause();
+                setIsPaused(true);
+            }
+            return;
+        }
 
         const synths = {
             default: new Tone.Synth({
@@ -146,11 +158,13 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
         Tone.Transport.start();
         Tone.Transport.stop(`+${totalTime}`); // Stop the transport after totalTime seconds
         setIsPlaying(true);
+        setIsPaused(false);
     };
 
     const stopSound = () => {
         Tone.Transport.stop();
         setIsPlaying(false);
+        setIsPaused(false);
     };
 
     useEffect(() => {
@@ -172,7 +186,9 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
                 onTouchMove={draw}
             />
             <button onClick={handleSave}>Save Drawing</button>
-            <button onClick={playSound} disabled={isPlaying}>Play Sound</button>
+            <button onClick={playPauseSound} disabled={!isPlaying && isPaused}>
+                {isPlaying && !isPaused ? 'Pause Sound' : 'Play Sound'}
+            </button>
             <button onClick={stopSound} disabled={!isPlaying}>Stop Sound</button>
         </div>
     );
