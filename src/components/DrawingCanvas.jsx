@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as Tone from 'tone';
+import axios from 'axios';
 
 const DrawingCanvas = ({ mode, color, onSave }) => {
     const canvasRef = useRef(null);
@@ -95,8 +96,22 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
         });
     };
 
-    const handleSave = () => {
-        onSave(lines.flat());
+    const handleSave = async () => {
+        const drawing = {
+            fileName: "example_drawing.json",
+            drawingId: new Date().getTime().toString(), // Unique ID for the drawing
+            lines: lines.map(line => ({
+                color: line[0].color,
+                points: line.map(point => ({ x: point.x, y: point.y }))
+            }))
+        };
+
+        try {
+            const response = await axios.post('http://your-backend-url/savedrawing', drawing);
+            console.log('Save successful', response.data);
+        } catch (error) {
+            console.error('Error saving drawing', error);
+        }
     };
 
     const playPauseSound = async () => {
@@ -145,7 +160,7 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
         lines.flat().forEach((point, index, arr) => {
             const time = (point.x / width) * totalTime; // Scale x to totalTime
             const freq = 100 + (height - point.y); // Invert y-coordinate for frequency
-            const nextTime = (index < arr.length - 1) ? (arr[index + 1].x / width) * totalTime : totalTime;
+            const nextTime = (index < arr.length - 1) ? (arr[index + 1].x / width) * totalTime : time + 0.5; // Ensure the last note has a duration of 0.5 seconds
             const duration = Math.max(nextTime - time, minDuration); // Ensure duration is at least minDuration
 
             const synth = point.color === 'green' ? synths.green : synths.default;
@@ -186,7 +201,7 @@ const DrawingCanvas = ({ mode, color, onSave }) => {
                 onTouchMove={draw}
             />
             <button onClick={handleSave}>Save Drawing</button>
-            <button onClick={playPauseSound} disabled={!isPlaying && isPaused}>
+            <button onClick={playPauseSound}>
                 {isPlaying && !isPaused ? 'Pause Sound' : 'Play Sound'}
             </button>
             <button onClick={stopSound} disabled={!isPlaying}>Stop Sound</button>
